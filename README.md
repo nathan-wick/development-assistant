@@ -75,9 +75,15 @@ If you're using Git**Hub** instead, skip to the [Configure Service section](#con
 2. Create token with `api` scope
 3. Copy token to values.yaml
 
-#### Configure Service
+#### Define Variables
 
-TODO
+Create a `secrets.env` file at the project's root.
+
+```env
+PLATFORM_URL=https://github.com
+PLATFORM_TOKEN=
+PLATFORM_WEBHOOK_SECRET=
+```
 
 ### Start
 
