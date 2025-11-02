@@ -1,16 +1,27 @@
-version: "3.8"
-
 services:
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - reviewer-network
+    restart: unless-stopped
+
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
     volumes:
       - ollama_data:/root/.ollama
-    ports:
-      - "11434:11434"
-    restart: unless-stopped
     networks:
       - reviewer-network
+    restart: unless-stopped
 
   reviewer:
     build: .
@@ -19,18 +30,19 @@ services:
       - ollama
     volumes:
       - ./values.yaml:/config/values.yaml:ro
-    ports:
-      - "8080:8080"
     env_file:
       - ../secrets.env
-    restart: unless-stopped
+      - ../preferences.env
     networks:
       - reviewer-network
+    restart: unless-stopped
     environment:
       - TZ=UTC
 
 volumes:
   ollama_data:
+  caddy_data:
+  caddy_config:
 
 networks:
   reviewer-network:
