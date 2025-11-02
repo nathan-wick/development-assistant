@@ -22,10 +22,12 @@ services:
     volumes:
       - ollama_data:/root/.ollama
       - ./start-ollama.sh:/start-ollama.sh
-    entrypoint: ["/start-ollama.sh"]
+    entrypoint: ["/bin/bash", "/start-ollama.sh"]
     networks:
       - reviewer-network
     restart: unless-stopped
+    env_file:
+      - ../preferences.env
 
   reviewer:
     build: .
