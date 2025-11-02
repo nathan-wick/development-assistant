@@ -25,7 +25,7 @@ services:
 
   reviewer:
     build: .
-    container_name: code-reviewer
+    container_name: reviewer
     depends_on:
       - ollama
     volumes:
