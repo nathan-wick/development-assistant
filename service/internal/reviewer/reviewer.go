@@ -32,8 +32,9 @@ func (r *Reviewer) ReviewPullRequest(ctx context.Context, event *platform.PullRe
 			break
 		}
 
-		if len(file.Patch) > r.config.Review.MaxFileSizeCharacters {
-			reviews = append(reviews, fmt.Sprintf("⚠️ Skipped `%s`: file too large", file.Filename))
+		patchSize := len(file.Patch)
+		if patchSize > r.config.Review.MaxFileSizeCharacters {
+			reviews = append(reviews, fmt.Sprintf("⚠️ Skipped `%s`: File changes are too large to review. It contains %d characters, exceeding the %d-character limit.", file.Filename, patchSize, r.config.Review.MaxFileSizeCharacters))
 			continue
 		}
 
