@@ -143,7 +143,10 @@ DOMAIN_ZONE_ID=
 
 Update the following values in the preferences.env file to match your preferences:
 
-- `OLLAMA_MODEL`: The LLM used. `codellama:7b` is a happy medium between speed and quality. If you have more resources and prefer deeper insights, `codellama:13b` is a better option.
+- `OLLAMA_MODEL`: The LLM used.
+  - `codellama:7b` is a happy medium between speed and quality.
+  - If you have more resources and prefer deeper insights, `codellama:13b` is a better option.
+  - If you have less resources and need more speed, `granite-code:3b` is a better option.
 - `OLLAMA_TEMPERATURE`: The creativity or variability of responses. Lower values (`0.2`–`0.4`) make responses more focused and deterministic. Higher values (`0.6`–`0.8`) make them more exploratory.
 - `OLLAMA_TIMEOUT`: Maximum number of seconds to wait for a response.
 - `REVIEW_MAX_FILES`: Maximum number of files the AI will review per request. Helps prevent excessive load on the service when large pull requests are submitted.

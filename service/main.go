@@ -75,12 +75,14 @@ func main() {
 	detectedPlatform := detectPlatformFromToken(cfg.Platform.Token)
 	if detectedPlatform == "github" {
 		svc.github = platform.NewGitHubPlatform(cfg.Platform.Token, cfg.Platform.WebhookSecret)
+		rev.SetGitHubPlatform(svc.github)
 	} else {
 		glPlatform, err := platform.NewGitLabPlatform(cfg.Platform.Token, cfg.Platform.WebhookSecret, cfg.Platform.Url)
 		if err != nil {
 			log.Fatalf("Failed to initialize GitLab: %v", err)
 		}
 		svc.gitlab = glPlatform
+		rev.SetGitLabPlatform(svc.gitlab)
 	}
 
 	http.HandleFunc("/webhook", svc.handleWebhook)
