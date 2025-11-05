@@ -3,6 +3,9 @@
     "Caddyfile",
     "codellama",
     "DDNS",
-    "Ollama"
+    "geolocation",
+    "nosniff",
+    "Ollama",
+    "yourdomain"
   ]
 }

@@ -21,13 +21,13 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-      - ./service/start-ollama.sh:/start-ollama.sh
+      - ./scripts/start-ollama.sh:/start-ollama.sh
     entrypoint: ["/bin/bash", "/start-ollama.sh"]
     networks:
       - reviewer-network
     restart: unless-stopped
     env_file:
-      - ./preferences.env
+      - ./settings.env
 
   reviewer:
     build:
@@ -38,7 +38,7 @@ services:
       - ollama
     env_file:
       - ./secrets.env
-      - ./preferences.env
+      - ./settings.env
     networks:
       - reviewer-network
     restart: unless-stopped

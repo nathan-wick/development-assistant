@@ -25,8 +25,8 @@ for i in $(seq 1 $TIMEOUT); do
 done
 apt-get remove -y curl && apt-get autoremove -y
 
-echo "Pulling model: ${OLLAMA_MODEL:-codellama:7b}..."
-ollama pull "${OLLAMA_MODEL:-codellama:7b}"
+echo "Pulling model: ${LLM_MODEL:-codellama:7b}..."
+ollama pull "${LLM_MODEL:-codellama:7b}"
 echo "Model pulled successfully!"
 
 wait
