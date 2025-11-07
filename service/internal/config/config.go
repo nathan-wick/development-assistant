@@ -8,7 +8,7 @@ import (
 
 type Config struct {
 	Platform PlatformConfig
-	Ollama   OllamaConfig
+	Llm      LlmConfig
 	Review   ReviewConfig
 }
 
@@ -18,10 +18,11 @@ type PlatformConfig struct {
 	WebhookSecret string
 }
 
-type OllamaConfig struct {
+type LlmConfig struct {
 	Model       string
 	Temperature float64
 	Timeout     int
+	ApiKey      string
 }
 
 type ReviewConfig struct {
@@ -49,22 +50,24 @@ func loadEnvVariables(config *Config) error {
 	config.Platform.Token = os.Getenv("PLATFORM_TOKEN")
 	config.Platform.WebhookSecret = os.Getenv("PLATFORM_WEBHOOK_SECRET")
 
-	// Ollama config
-	config.Ollama.Model = getEnvOrDefault("LLM_MODEL", "codellama:7b")
+	// LLM config
+	config.Llm.Model = getEnvOrDefault("LLM_MODEL", "codellama:7b")
 
 	tempStr := getEnvOrDefault("LLM_TEMPERATURE", "0.3")
 	temp, err := strconv.ParseFloat(tempStr, 64)
 	if err != nil {
 		return fmt.Errorf("invalid LLM_TEMPERATURE value: %w", err)
 	}
-	config.Ollama.Temperature = temp
+	config.Llm.Temperature = temp
 
 	timeoutStr := getEnvOrDefault("LLM_TIMEOUT", "300")
 	timeout, err := strconv.Atoi(timeoutStr)
 	if err != nil {
 		return fmt.Errorf("invalid LLM_TIMEOUT value: %w", err)
 	}
-	config.Ollama.Timeout = timeout
+	config.Llm.Timeout = timeout
+
+	config.Llm.ApiKey = getEnvOrDefault("LLM_API_KEY", "")
 
 	// Review config
 	maxFilesStr := getEnvOrDefault("REVIEW_MAX_FILES", "1000")

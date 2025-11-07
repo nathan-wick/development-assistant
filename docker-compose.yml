@@ -17,6 +17,7 @@ services:
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
+    profiles: ["no-llm-api-key"]
     ports:
       - "11434:11434"
     volumes:
@@ -34,8 +35,8 @@ services:
       context: .
       dockerfile: ./Dockerfile
     container_name: reviewer
-    depends_on:
-      - ollama
+    # depends_on:
+    #   - ollama
     env_file:
       - ./secrets.env
       - ./settings.env

@@ -16,14 +16,14 @@ type OllamaClient struct {
 	timeout     time.Duration
 }
 
-type GenerateRequest struct {
+type OllamaGenerateRequest struct {
 	Model       string  `json:"model"`
 	Prompt      string  `json:"prompt"`
 	Stream      bool    `json:"stream"`
 	Temperature float64 `json:"temperature"`
 }
 
-type GenerateResponse struct {
+type OllamaGenerateResponse struct {
 	Response string `json:"response"`
 }
 
@@ -37,7 +37,7 @@ func NewOllamaClient(host, model string, temperature float64, timeout int) *Olla
 }
 
 func (c *OllamaClient) Generate(prompt string) (string, error) {
-	reqBody := GenerateRequest{
+	reqBody := OllamaGenerateRequest{
 		Model:       c.model,
 		Prompt:      prompt,
 		Stream:      false,
@@ -68,7 +68,7 @@ func (c *OllamaClient) Generate(prompt string) (string, error) {
 		return "", fmt.Errorf("failed to read response: %w", err)
 	}
 
-	var genResp GenerateResponse
+	var genResp OllamaGenerateResponse
 	if err := json.Unmarshal(body, &genResp); err != nil {
 		return "", fmt.Errorf("failed to unmarshal response: %w", err)
 	}

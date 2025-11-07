@@ -3,6 +3,7 @@
     "Caddyfile",
     "codellama",
     "DDNS",
+    "genai",
     "geolocation",
     "nosniff",
     "Ollama",

@@ -45,11 +45,11 @@ Monthly cost per full-time developer: ~$1 depending on usage.
 - [GitHub](https://github.com/) or [GitLab](https://about.gitlab.com/) account with admin access to repositories
 - Domain name with admin access to DNS records
 - Server with [Git](https://git-scm.com/install/linux) and [Docker Engine](https://docs.docker.com/engine/install/ubuntu/) installed
-  - Operating System: Latest [Ubuntu Server](https://ubuntu.com/download/server) recommended for efficiency, compatibility, and long-term support
-  - If you're self-hosting the LLM, you'll need the following hardware. Otherwise, minimal hardware will suffice
-    - System RAM: Minimum 32 GB recommended for stable and responsive performance
-    - GPU VRAM: Minimum 24 GB recommended for faster inference and larger context windows
-    - Storage: NVMe SSD (minimum 500 GB recommended) for fast model loading and data access
+  - Operating System: Latest [Ubuntu Server](https://ubuntu.com/download/server) recommended for efficiency, compatibility, and long-term support.
+  - If you're self-hosting the LLM, you'll need the following hardware. Otherwise, minimal hardware will suffice.
+    - System RAM: Minimum 32 GB recommended for stable and responsive performance.
+    - GPU VRAM: Minimum 24 GB recommended for faster inference and larger context windows.
+    - Storage: NVMe SSD (minimum 500 GB recommended) for fast model loading and data access.
 
 ### Step 1: Clone the Development Assistant
 
@@ -74,19 +74,23 @@ Create 2 new port forwarding rules on your network's router with the following v
 - Protocol: `TCP`
 - Status: `Enabled`
 
+#### DNS Record
+
+Navigate to your domain's DNS records, and add the following record:
+
+- Type: `A`
+- Name: `development-assistant`
+- IPv4 Address: Your server's [**public** IP address](https://www.showmyip.com/)
+- Proxy Status: `false` (DNS only)
+- TTL: `Auto`
+
 #### Dynamic DNS
 
-Since your public IP changes, use a Dynamic DNS (DDNS) service to get a persistent domain name. Any DDNS service will do, but for this example, we'll be using [Cloudflare](https://www.cloudflare.com/) (free).
+If your public IP address is dynamic (not static), you'll need a Dynamic DNS (DDNS) service to get a persistent domain name. Development Assistant has a built-in DDNS service that integrates with [Cloudflare](https://www.cloudflare.com/) (free).
 
-##### DNS Record
+##### Move Your Domain To Cloudflare
 
-1. If you haven't already, [create a Cloudflare account](https://dash.cloudflare.com/sign-up), and [add your domain](https://developers.cloudflare.com/fundamentals/manage-domains/add-site/)
-2. From your [Cloudflare Dashboard](https://dash.cloudflare.com), navigate to your domain's DNS records, and add a record with the following values:
-   - Type: `A`
-   - Name: `development-assistant`
-   - IPv4 Address: Your server's [**public** IP address](https://www.showmyip.com/)
-   - Proxy Status: `false` (DNS only)
-   - TTL: `Auto`
+If you haven't already, [create a Cloudflare account](https://dash.cloudflare.com/sign-up), and [add your domain](https://developers.cloudflare.com/fundamentals/manage-domains/add-site/)
 
 ##### Cloudflare API Token
 
@@ -101,10 +105,6 @@ Since your public IP changes, use a Dynamic DNS (DDNS) service to get a persiste
 
 1. From your [Cloudflare Dashboard](https://dash.cloudflare.com), navigate to your domain's API section (right side)
 2. Copy the `Zone ID`, you'll need it in [step 4](#step-4-define-variables)
-
-##### Automatic Updates
-
-TODO Make the `cloudflare-ddns-update.sh` script run every minute.
 
 ### Step 3: Configure the Repository
 
@@ -129,26 +129,23 @@ TODO Make the `cloudflare-ddns-update.sh` script run every minute.
 
 #### Secrets
 
-Create a `secrets.env` file at the repository's root.
+Create a `secrets.env` file at the repository's root with the following values:
 
-For example:
-
-```env
-PLATFORM_URL=https://github.com
-PLATFORM_TOKEN=
-PLATFORM_WEBHOOK_SECRET=
-
-DOMAIN_DNS_TOKEN=
-DOMAIN_ZONE_ID=
-```
+- `PLATFORM_TOKEN`: Your git hosting platform's API token from [step 3](#step-3-configure-the-repository).
+- `PLATFORM_WEBHOOK_SECRET`: The webhook secret you set in [step 3](#step-3-configure-the-repository).
+- `DOMAIN_DNS_TOKEN`: Your Cloudflare API token from [step 2](#step-2-get-the-payload-url). If you have a static public IP or don't need the DDNS service, don't add this variable.
+- `DOMAIN_ZONE_ID`: Your Zone ID from [step 2](#step-2-get-the-payload-url). If you have a static public IP or don't need the DDNS service, don't add this variable.
+- `LLM_API_KEY`: Your API-based LLM's API key. If you're self-hosting your LLM, don't add this variable.
 
 #### Settings
 
 Update the following values in the settings.env file to match your settings:
 
+- `PLATFORM_URL`: The URL to your git hosting platform (github/gitlab).
 - `DOMAIN_NAME`: Your payload URL's domain name from [step 2](#step-2-get-the-payload-url), for example, `development-assistant.yourdomain.com`
 - `LLM_MODEL`: The LLM model used.
   - If you're using Ollama, any model in [Ollama's library](https://ollama.com/library) will work, but `codellama:13b` or better is recommended.
+  - If you're using Gemini, any model in [Gemini's library](https://ai.google.dev/gemini-api/docs/models) will work.
 - `LLM_TEMPERATURE`: The creativity or variability of responses. Lower values (`0.2`–`0.4`) make responses more focused and deterministic. Higher values (`0.6`–`0.8`) make them more exploratory.
 - `LLM_TIMEOUT`: Maximum number of seconds to wait for a response.
 - `REVIEW_MAX_FILES`: Maximum number of files the LLM will review per request. Helps prevent excessive load on the service when large pull requests are submitted.
@@ -157,7 +154,7 @@ Update the following values in the settings.env file to match your settings:
 
 ### Step 5: Start!
 
-Run the following command to build and start containers:
+Run the following command to build and start the container:
 
 ```bash
 sh start.sh

@@ -12,13 +12,13 @@ import (
 )
 
 type Reviewer struct {
-	llm            *llm.OllamaClient
+	llm            llm.Client
 	config         *config.Config
 	githubPlatform *platform.GitHubPlatform
 	gitlabPlatform *platform.GitLabPlatform
 }
 
-func NewReviewer(llmClient *llm.OllamaClient, cfg *config.Config) *Reviewer {
+func NewReviewer(llmClient llm.Client, cfg *config.Config) *Reviewer {
 	return &Reviewer{
 		llm:    llmClient,
 		config: cfg,
@@ -55,6 +55,7 @@ func (r *Reviewer) ReviewPullRequest(ctx context.Context, event *platform.PullRe
 			break
 		}
 
+		// TODO Only review the new code, not the old code.
 		patchSize := len(file.Patch)
 		if patchSize > r.config.Review.MaxFileSizeCharacters {
 			reviews = append(reviews, fmt.Sprintf("⚠️ Skipped `%s`: File changes are too large to review. It contains %d characters, exceeding the %d-character limit.", file.Filename, patchSize, r.config.Review.MaxFileSizeCharacters))

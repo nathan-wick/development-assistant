@@ -69,12 +69,22 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	llmClient := llm.NewOllamaClient(
-		"ollama:11434",
-		cfg.Ollama.Model,
-		cfg.Ollama.Temperature,
-		cfg.Ollama.Timeout,
-	)
+	var llmClient llm.Client
+	if cfg.Llm.ApiKey == "" {
+		llmClient = llm.NewOllamaClient(
+			"ollama:11434",
+			cfg.Llm.Model,
+			cfg.Llm.Temperature,
+			cfg.Llm.Timeout,
+		)
+	} else {
+		llmClient = llm.NewGeminiClient(
+			cfg.Llm.ApiKey,
+			cfg.Llm.Model,
+			cfg.Llm.Temperature,
+			cfg.Llm.Timeout,
+		)
+	}
 
 	rev := reviewer.NewReviewer(llmClient, cfg)
 
