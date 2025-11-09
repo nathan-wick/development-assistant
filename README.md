@@ -20,6 +20,7 @@ The average software developer spends **5 hours per week** reviewing code. Meanw
 The Development Assistant Code Reviewer serves as an always-available senior developer on your team, reviewing code 24/7 without fatigue, bias, or delays.
 
 Other software development teams have observed many benefits from similar AI code reviewers:
+
 - Microsoft's large-scale internal implementation observed a significant improvement in code quality, developer learning, and a 10 - 20% quicker median review completion time. ([source](https://devblogs.microsoft.com/engineering-at-microsoft/enhancing-code-quality-at-scale-with-ai-powered-code-reviews/))
 
 ### IDE Advanced Autocomplete
@@ -32,7 +33,7 @@ Coming soon!
 
 ## How It Works
 
-![diagram](https://github.com/nathan-wick/development-assistant/blob/main/development-assistant.png)
+![diagram](https://github.com/nathan-wick/development-assistant/blob/main/assets/images/development-assistant.png)
 
 ## Estimated Cost
 
@@ -40,25 +41,27 @@ Coming soon!
 
 Running a self-hosted LLM gives you **full control** and **privacy**, but requires substantial compute resources and maintenance.
 
-Total upfront hardware cost: ~$5,000, depending on configuration.
+Total **upfront** hardware cost: **~$5,000** depending on configuration.
 
-Monthly power and maintenance cost: ~$100, depending on GPU load and local rates.
+**Monthly** power and maintenance cost: **~$100** depending on GPU load and local rates.
 
 ### API-based LLM
 
-Using an API-based LLM requires **no additional hardware** and **scales automatically**, but you pay per request or per token generated.
+Using an API-based LLM requires **no additional hardware**, **scales automatically**, and is significantly more **economical** than self-hosting.
 
-Monthly cost per full-time developer: ~$1, depending on usage.
+**Monthly** cost per full-time developer: **~$1** depending on usage.
 
 ## Getting Started
+
+Development Assistant can be set up in **five straightforward steps**, generally taking about **one hour to complete**.
 
 ### Prerequisites
 
 - [GitHub](https://github.com/) or [GitLab](https://about.gitlab.com/) account with admin access to repositories
-- Domain name with admin access to DNS records
+- Domain name with admin access to DNS records or nameservers
 - Server with [Git](https://git-scm.com/install/linux) and [Docker Engine](https://docs.docker.com/engine/install/ubuntu/) installed
   - Operating System: Latest [Ubuntu Server](https://ubuntu.com/download/server) recommended for efficiency, compatibility, and long-term support.
-  - If you're self-hosting the LLM, you'll need the following hardware. Otherwise, minimal hardware will suffice.
+  - The following hardware is required for self-hosting the LLM; otherwise, minimal hardware is sufficient.
     - System RAM: Minimum 32 GB recommended for stable and responsive performance.
     - GPU VRAM: Minimum 24 GB recommended for faster inference and larger context windows.
     - Storage: NVMe SSD (minimum 500 GB recommended) for fast model loading and data access.
@@ -156,8 +159,8 @@ Update the following values in the settings.env file to match your settings:
 - `PLATFORM_URL`: The URL to your git hosting platform (GitHub/GitLab).
 - `DOMAIN_NAME`: Your payload URL's domain name from [step 2](#step-2-get-the-payload-url), for example, `development-assistant.yourdomain.com`
 - `LLM_MODEL`: The LLM model used.
-  - If you're using Ollama, any model in [Ollama's library](https://ollama.com/library) will work, but `codellama:13b` or better is recommended.
-  - If you're using Gemini, any model in [Gemini's library](https://ai.google.dev/gemini-api/docs/models) will work.
+  - If you're self-hosting your LLM, any model in [Ollama's library](https://ollama.com/library) will work, but `codellama:13b` or better is recommended.
+  - If you're using an API-based LLM, any model in [Gemini's library](https://ai.google.dev/gemini-api/docs/models) will work.
 - `LLM_TEMPERATURE`: The creativity or variability of responses. Lower values (`0.2`–`0.4`) make responses more focused and deterministic. Higher values (`0.6`–`0.8`) make them more exploratory.
 - `LLM_TIMEOUT`: Maximum number of seconds to wait for a response.
 - `REVIEW_MAX_FILES`: Maximum number of files the LLM will review per request. Helps prevent excessive load on the service when large pull requests are submitted.

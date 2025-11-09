@@ -49,13 +49,14 @@ func (r *Reviewer) ReviewPullRequest(ctx context.Context, event *platform.PullRe
 	var reviews []string
 	fileCount := 0
 
+	reviews = append(reviews, "My review is complete 😃! Please note that while I strive for accuracy, it's important to verify all recommendations before implementing them.")
+
 	for _, file := range event.Files {
 		if fileCount >= r.config.Review.MaxFiles {
 			reviews = append(reviews, "⚠️ Too many files to review. Only reviewed the first files.")
 			break
 		}
 
-		// TODO Only review the new code, not the old code.
 		patchSize := len(file.Patch)
 		if patchSize > r.config.Review.MaxFileSizeCharacters {
 			reviews = append(reviews, fmt.Sprintf("⚠️ Skipped `%s`: File changes are too large to review. It contains %d characters, exceeding the %d-character limit.", file.Filename, patchSize, r.config.Review.MaxFileSizeCharacters))
