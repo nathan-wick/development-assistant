@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
@@ -26,9 +27,10 @@ type LlmConfig struct {
 }
 
 type ReviewConfig struct {
-	MaxFiles              int
-	MaxFileSizeCharacters int
-	ReviewPrompt          string
+	MaxFiles                int
+	MaxFileSizeCharacters   int
+	ReviewPrompt            string
+	BlockedFilePathKeywords []string
 }
 
 func LoadConfig() (*Config, error) {
@@ -83,6 +85,15 @@ func loadEnvVariables(config *Config) error {
 		return fmt.Errorf("invalid REVIEW_MAX_FILE_SIZE value: %w", err)
 	}
 	config.Review.MaxFileSizeCharacters = maxSize
+
+	blockedKeywordsStr := getEnvOrDefault("BLOCKED_FILE_PATH_KEYWORDS", "")
+	if blockedKeywordsStr != "" {
+		keywords := strings.Split(blockedKeywordsStr, ",")
+		for i, keyword := range keywords {
+			keywords[i] = strings.TrimSpace(keyword)
+		}
+		config.Review.BlockedFilePathKeywords = keywords
+	}
 
 	config.Review.ReviewPrompt = getEnvOrDefault("REVIEW_PROMPT",
 		"As a senior software engineer and expert code reviewer, analyze the following code changes for correctness, clarity, maintainability, security, and performance, then provide concise, actionable feedback with specific improvement suggestions.")

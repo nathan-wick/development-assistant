@@ -5,7 +5,6 @@ Automated code reviewer for modern development teams - by [Nathan Wick](https://
 ### Table of Contents
 
 - [Features](#features)
-  - [Code Reviewer](#code-reviewer)
 - [How It Works](#how-it-works)
 - [Estimated Cost](#estimated-cost)
 - [Getting Started](#getting-started)
@@ -60,7 +59,7 @@ Using an API-based LLM requires **no additional hardware**, **scales automatical
 
 #### 🧮 Estimated Monthly API Cost Formula
 
-``` python
+```python
 average_lines_per_hour = 20
 average_hours_per_day = 8
 average_input_tokens_per_line = 10
@@ -110,13 +109,13 @@ API LLM providers can offer services at costs that self-hosting cannot beat for 
 
 Code Reviewer will send patches of your code to your API LLM provider. **If handling sensitive data, opt into Zero Data Retention (ZDR)** to prevent any training from, or storage of, your data.
 
-If sending code patches to an external service concerns you, consider:
+If sending code to an external service concerns you, consider the following:
 
-- **Major providers have strong legal and financial incentives to protect your data**. Companies like Anthropic, OpenAI, and Google have multi-billion-dollar valuations that would be destroyed by a data breach or misuse scandal. Their entire business model depends on trust.
-- **Verified security**. SOC 2 Type II and ISO 27001 certifications require regular third-party audits.
-- **Zero retention**. With ZDR, code is processed in memory and immediately discarded—no storage, training, or logs.
-- **You're likely already exposed**. GitHub Copilot and similar tools send entire codebases externally. Developers routinely share code on Stack Overflow and GitHub. Controlled API calls with ZDR are arguably safer.
-- **Blacklisting available**. Code Reviewer can ignore files by keyword.
+- **Zero retention**. With ZDR, code is processed in memory and immediately discarded.
+- **Strong legal and financial incentives**. Leading providers have multi-billion-dollar valuations at stake. A single data breach or misuse scandal would be catastrophic for their business.
+- **Verified security**. Leading providers maintain SOC 2 Type II and ISO 27001 certifications, which require ongoing third-party security audits.
+- **Granular control**. Code Reviewer can exclude sensitive files or directories, preventing them from ever being sent to the LLM.
+- **Context matters**. 84% of developers are using or planning to use LLM tools in their development process ([source](https://survey.stackoverflow.co/2025/ai#sentiment-and-usage-ai-sel-prof)). Many of these tools send entire codebases externally. Controlled API calls with ZDR offer more security than browser-based tools or unvetted extensions.
 
 ## Getting Started
 
@@ -237,6 +236,7 @@ Update the following values in the settings.env file to match your settings:
 - `LLM_TIMEOUT`: Maximum number of seconds to wait for a response.
 - `REVIEW_MAX_FILES`: Maximum number of files the LLM will review per request. Helps prevent excessive load on the service when large pull requests are submitted.
 - `REVIEW_MAX_FILE_SIZE`: Maximum number of characters per file the LLM will review. Files larger than this will be skipped to keep responses fast and relevant.
+- `BLOCKED_FILE_PATH_KEYWORDS`: Comma-separated keywords to exclude files from review. Files whose paths contain any of these keywords (case-insensitive) will be skipped and not sent to the LLM. Useful for excluding generated code, dependencies, or sensitive files.
 - `REVIEW_PROMPT`: Defines how the LLM should approach its code review. You can customize this to match your team’s tone or focus areas (e.g., emphasize readability, security, or test coverage).
 
 ### Step 5: Start!

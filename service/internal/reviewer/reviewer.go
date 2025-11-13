@@ -42,6 +42,20 @@ func (r *Reviewer) postComment(ctx context.Context, event *platform.PullRequestE
 	return nil
 }
 
+func (r *Reviewer) isFileBlocked(filename string) bool {
+	if len(r.config.Review.BlockedFilePathKeywords) == 0 {
+		return false
+	}
+
+	lowerFilename := strings.ToLower(filename)
+	for _, keyword := range r.config.Review.BlockedFilePathKeywords {
+		if strings.Contains(lowerFilename, strings.ToLower(keyword)) {
+			return true
+		}
+	}
+	return false
+}
+
 func (r *Reviewer) ReviewPullRequest(ctx context.Context, event *platform.PullRequestEvent) (string, error) {
 	greetingMsg := "🤖 Hello! I'm reviewing your changes now. This may take a moment..."
 	_ = r.postComment(ctx, event, greetingMsg)
@@ -57,6 +71,11 @@ func (r *Reviewer) ReviewPullRequest(ctx context.Context, event *platform.PullRe
 			break
 		}
 
+		if r.isFileBlocked(file.Filename) {
+			reviews = append(reviews, fmt.Sprintf("### 🚫 📄 %s\n\nSkipped review. This file contains a blocked keyword in its file path.", file.Filename))
+			continue
+		}
+
 		patchSize := len(file.Patch)
 		if patchSize > r.config.Review.MaxFileSizeCharacters {
 			reviews = append(reviews, fmt.Sprintf("### 🐘 📄 %s\n\nFile changes are too large to review. It contains %d characters, exceeding the %d-character limit.", file.Filename, patchSize, r.config.Review.MaxFileSizeCharacters))
@@ -69,7 +88,7 @@ func (r *Reviewer) ReviewPullRequest(ctx context.Context, event *platform.PullRe
 
 		review, err := r.reviewFileWithProgress(ctx, event, file)
 		if err != nil {
-			reviews = append(reviews, fmt.Sprintf("### 🛑 📄 %s\n\nError reviewing: %v", file.Filename, err))
+			reviews = append(reviews, fmt.Sprintf("### 🌋 📄 %s\n\nError reviewing: %v", file.Filename, err))
 			continue
 		}
 
