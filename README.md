@@ -37,85 +37,45 @@ View [this example](https://github.com/nathan-wick/test-development-assistant/pu
 
 Running a self-hosted LLM gives you **full control** and **privacy**, but requires substantial compute resources and maintenance.
 
-| Category                         | Estimated Cost Per 1-50 Developers |
-| -------------------------------- | ---------------------------------- |
-| **Upfront Hardware**             | $12,000                            |
-| **Monthly Hardware Maintenance** | $100                               |
-| **Monthly Power**                | $250                               |
-| **Monthly API Fees**             | $0                                 |
-| **Total**                        | $12,000 upfront + $350 monthly     |
+#### 💰 Estimated Cost Per 1-50 Developers by Model
+
+| Category              | codellama:70b | gpt-oss:120b | deepseek-r1:671b |
+| --------------------- | ------------- | ------------ | ---------------- |
+| **Upfront Hardware**  | $15,750       | $27,000      | $150,975         |
+| **Monthly Operating** | $543          | $931         | $5,204           |
+| **Monthly API Fees**  | $0            | $0           | $0               |
+
+`deepseek-r1:671b` is similar to Gemini 2.5 Pro in performance.
 
 ### ☁️ API-Based LLM
 
-Using an API-based LLM requires **no additional hardware**, **scales automatically**, and is significantly more **economical** than self-hosting.
+Using an API-based LLM requires **no additional hardware**, **scales automatically**, and is significantly **more economical** than self-hosting.
 
-| Category                         | Estimated Cost Per 10 Developers |
-| -------------------------------- | -------------------------------- |
-| **Upfront Hardware**             | $40                              |
-| **Monthly Hardware Maintenance** | $1                               |
-| **Monthly Power**                | $5                               |
-| **Monthly API Fees**             | $4                               |
-| **Total**                        | $40 upfront + $10 monthly        |
+#### 💰 Estimated Cost Per 10 Developers by Model
 
-#### 🧮 Estimated Monthly API Cost Formula
-
-```python
-average_lines_per_hour = 20
-average_hours_per_day = 8
-average_input_tokens_per_line = 10
-average_output_tokens_per_line = 10
-input_token_cost_per_million = 1.25
-output_token_cost_per_million = 10
-number_of_developers = 10
-average_working_days_per_month = 22
-
-developer_daily_input_cost = (
-    average_lines_per_hour
-    * average_hours_per_day
-    * average_input_tokens_per_line
-    * (input_token_cost_per_million / 1_000_000)
-)
-
-developer_daily_output_cost = (
-    average_lines_per_hour
-    * average_hours_per_day
-    * average_output_tokens_per_line
-    * (output_token_cost_per_million / 1_000_000)
-)
-
-developer_daily_cost = developer_daily_input_cost + developer_daily_output_cost
-
-estimated_monthly_api_cost = (
-    developer_daily_cost * number_of_developers * average_working_days_per_month
-)
-
-print(f"Estimated Monthly API Cost: ${estimated_monthly_api_cost:.2f}")
-```
+| Category              | Gemini 2.5 Pro | GPT 5.1 | Sonnet 4.5 |
+| --------------------- | -------------- | ------- | ---------- |
+| **Upfront Hardware**  | $40            | $40     | $40        |
+| **Monthly Operating** | $5             | $5      | $5         |
+| **Monthly API Fees**  | $4             | $4      | $6         |
 
 #### 🤔 Why So Cheap?
 
-API LLM providers can offer services at costs that self-hosting cannot beat for many reasons:
+API LLM providers can offer services at costs that self-hosting cannot beat for the following reasons:
 
-- **Economies of Scale**: Providers run massive inference clusters serving thousands of customers simultaneously. This allows them to:
-  - Amortize fixed costs (data center buildout, power infrastructure, networking) across a huge customer base.
-  - Negotiate better pricing on hardware, electricity, and bandwidth due to volume.
-  - Achieve much higher GPU utilization rates.
-  - Group many user requests together to process them in parallel.
-  - Cache common requests, significantly reducing redundant computations.
-  - Use techniques like quantization, pruning, and knowledge distillation to reduce the size of models.
-- **Competition**: The API LLM market is competitive, and providers strategically set prices to gain market share.
+- **Economies of Scale**. Providers run massive inference clusters serving thousands of customers simultaneously.
+- **Competition**. The API LLM market is competitive, and providers strategically set prices to gain market share.
 
 #### 🕵️‍♂️ Data Privacy
 
-Code Reviewer will send patches of your code to your API LLM provider. **If handling sensitive data, opt into Zero Data Retention (ZDR)** to prevent any training from, or storage of, your data.
+If sending code to an external service concerns you, here's why Code Reviewer's approach is designed with security in mind:
 
-If sending code to an external service concerns you, consider the following:
-
-- **Zero retention**. With ZDR, code is processed in memory and immediately discarded.
-- **Strong legal and financial incentives**. Leading providers have multi-billion-dollar valuations at stake. A single data breach or misuse scandal would be catastrophic for their business.
+- **Minimal data exposure**. Code Reviewer sends only the specific lines that changed. Each file is reviewed in a separate request, making it practically impossible for anyone to reconstruct your codebase from fragmented patches scattered across isolated API calls.
+- **You stay in control**. Exclude sensitive files, directories, or patterns entirely. If certain code should never leave your environment, Code Reviewer will never send it.
+- **Zero retention**. Most providers offer Zero Data Retention (ZDR) to prevent any training from, or storage of, your data. With ZDR, code is processed in memory and immediately discarded.
 - **Verified security**. Leading providers maintain SOC 2 Type II and ISO 27001 certifications, which require ongoing third-party security audits.
-- **Granular control**. Code Reviewer can exclude sensitive files or directories, preventing them from ever being sent to the LLM.
-- **Context matters**. 84% of developers are using or planning to use LLM tools in their development process ([source](https://survey.stackoverflow.co/2025/ai#sentiment-and-usage-ai-sel-prof)). Many of these tools send entire codebases externally. Controlled API calls with ZDR offer more security than browser-based tools or unvetted extensions.
+- **Legal and financial incentives**. Leading providers have multi-billion-dollar valuations at stake. A single data breach or misuse scandal would be catastrophic for their business.
+- **Comparison**. 84% of developers are using or planning to use AI tools in their development process ([source](https://survey.stackoverflow.co/2025/ai#sentiment-and-usage-ai-sel-prof)). Many of these tools send entire codebases externally. Controlled API calls with ZDR offer more security than browser-based tools or unvetted extensions.
 
 ## Getting Started
 
@@ -131,11 +91,11 @@ Development Assistant can be set up in **5 straightforward steps**, generally ta
 
 #### Server Hardware Minimum Requirements
 
-| Component      | API-Based LLM        | Self-Hosted 30B Model | Self-Hosted 70B Model |
-| -------------- | -------------------- | --------------------- | --------------------- |
-| **System RAM** | 2 GB                 | 20 GB                 | 48 GB                 |
-| **GPU VRAM**   | Any modern processor | 32 GB                 | 64 GB                 |
-| **Storage**    | 50 GB                | NVMe SSD, 500 GB      | NVMe SSD, 1 TB        |
+| Component      | API-Based LLM        | Self-Hosted 70B Model |
+| -------------- | -------------------- | --------------------- |
+| **System RAM** | 2 GB                 | 48 GB                 |
+| **GPU VRAM**   | Any modern processor | 64 GB                 |
+| **Storage**    | 50 GB                | NVMe SSD, 1 TB        |
 
 ### Step 1: Clone the Development Assistant
 
