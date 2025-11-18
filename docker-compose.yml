@@ -32,11 +32,9 @@ services:
 
   reviewer:
     build:
-      context: .
+      context: ./reviewer
       dockerfile: ./Dockerfile
     container_name: reviewer
-    # depends_on:
-    #   - ollama
     env_file:
       - ./secrets.env
       - ./settings.env
@@ -45,6 +43,20 @@ services:
     restart: unless-stopped
     environment:
       - TZ=UTC
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      - caddy
 
 volumes:
   ollama_data:

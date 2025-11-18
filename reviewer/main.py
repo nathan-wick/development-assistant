@@ -1,0 +1,169 @@
+import asyncio
+import logging
+import signal
+import sys
+
+from aiohttp import web
+
+from configuration import load_configuration
+from llm.gemini import GeminiClient
+from llm.ollama import OllamaClient
+from platform_adapters.github import GitHubPlatform
+from platform_adapters.gitlab import GitLabPlatform
+from reviewer import Reviewer
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+
+class Service:
+
+    def __init__(self, configuration, reviewer_instance, github_platform=None, gitlab_platform=None): # type: ignore
+        self.configuration = configuration
+        self.reviewer_instance = reviewer_instance
+        self.github_platform = github_platform # type: ignore
+        self.gitlab_platform = gitlab_platform # type: ignore
+
+    def detect_platform(self) -> str:
+        url = self.configuration.platform.url.lower() # type: ignore
+        
+        if "github" in url:
+            return "github"
+        if "gitlab" in url:
+            return "gitlab"
+        
+        token = self.configuration.platform.token # type: ignore
+        
+        github_prefixes = ("ghp_", "github_pat_", "gho_", "ghu_", "ghs_", "ghr_")
+        if token.startswith(github_prefixes): # type: ignore
+            return "github"
+        
+        gitlab_prefixes = ("glpat-", "gloas-", "glgat-", "gldt-", "glagent-")
+        if token.startswith(gitlab_prefixes): # type: ignore
+            return "gitlab"
+        
+        token_length = len(token) # type: ignore
+        if 20 <= token_length <= 26:
+            return "gitlab"
+        
+        return ""
+
+    async def handle_webhook(self, request: web.Request) -> web.Response:
+        if request.method != "POST":
+            return web.Response(text="Method not allowed", status=405)
+
+        detected_platform = self.detect_platform()
+        
+        try:
+            if detected_platform == "github":
+                await self.github_platform.validate_webhook(request) # type: ignore
+                event = await self.github_platform.parse_pull_request(request) # type: ignore
+            else:
+                await self.gitlab_platform.validate_webhook(request) # type: ignore
+                event = await self.gitlab_platform.parse_merge_request(request) # type: ignore
+        except Exception as error:
+            logger.error(f"Webhook validation or parsing failed: {error}")
+            return web.Response(text="Unauthorized or Bad Request", status=401)
+
+        if event is None:
+            return web.Response(text="OK", status=200)
+
+        asyncio.create_task(self.process_review(event)) # type: ignore
+        return web.Response(text="OK", status=200)
+
+    async def process_review(self, event): # type: ignore
+        logger.info(f"Processing review for {event.owner}/{event.repo} #{event.number}") # type: ignore
+        
+        try:
+            review = await self.reviewer_instance.review_pull_request(event) # type: ignore
+            
+            detected_platform = self.detect_platform()
+            if detected_platform == "github":
+                await self.github_platform.post_comment( # type: ignore
+                    event.owner, event.repo, event.number, review # type: ignore
+                )
+            else:
+                await self.gitlab_platform.post_comment( # type: ignore
+                    event.owner, event.number, review # type: ignore
+                )
+            
+            logger.info(f"Review completed for {event.owner}/{event.repo} #{event.number}") # type: ignore
+        except Exception as error:
+            logger.error(f"Review failed: {error}")
+
+    async def handle_health(self, request: web.Request) -> web.Response:
+        return web.Response(text="OK", status=200)
+
+
+async def create_app() -> web.Application:
+    try:
+        configuration = load_configuration()
+    except Exception as error:
+        logger.fatal(f"Failed to load config: {error}")
+        sys.exit(1)
+
+    if configuration.llm.api_key:
+        llm_client = GeminiClient(
+            api_key=configuration.llm.api_key,
+            model=configuration.llm.model,
+            temperature=configuration.llm.temperature,
+            timeout=configuration.llm.timeout
+        )
+    else:
+        llm_client = OllamaClient(
+            host="ollama:11434",
+            model=configuration.llm.model,
+            temperature=configuration.llm.temperature,
+            timeout=configuration.llm.timeout
+        )
+
+    reviewer_instance = Reviewer(llm_client, configuration)
+
+    service = Service(configuration, reviewer_instance)
+
+    detected_platform = service.detect_platform()
+    
+    if detected_platform == "github":
+        service.github_platform = GitHubPlatform(
+            configuration.platform.token,
+            configuration.platform.webhook_secret
+        )
+        reviewer_instance.set_github_platform(service.github_platform) # type: ignore
+    else:
+        try:
+            service.gitlab_platform = GitLabPlatform(
+                configuration.platform.token,
+                configuration.platform.webhook_secret,
+                configuration.platform.url
+            )
+            reviewer_instance.set_gitlab_platform(service.gitlab_platform) # type: ignore
+        except Exception as error:
+            logger.fatal(f"Failed to initialize GitLab: {error}")
+            sys.exit(1)
+
+    application = web.Application()
+    application.router.add_post("/webhook", service.handle_webhook)
+    application.router.add_get("/health", service.handle_health)
+
+    return application
+
+
+def main():
+    application = asyncio.run(create_app())
+    
+    def signal_handler(sig, frame): # type: ignore
+        logger.info("Shutting down server...")
+        sys.exit(0)
+    
+    signal.signal(signal.SIGINT, signal_handler) # type: ignore
+    signal.signal(signal.SIGTERM, signal_handler) # type: ignore
+
+    logger.info("Starting server on 0.0.0.0:8080")
+    web.run_app(application, host="0.0.0.0", port=8080)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,12 +1,18 @@
 {
   "cSpell.words": [
+    "aiohttp",
+    "appuser",
     "Caddyfile",
     "codellama",
     "DDNS",
     "genai",
     "geolocation",
+    "healthcheck",
     "nosniff",
     "Ollama",
+    "pydantic",
+    "urllib",
+    "urlopen",
     "yourdomain"
   ]
 }
