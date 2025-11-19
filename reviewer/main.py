@@ -2,10 +2,9 @@ import asyncio
 import logging
 import signal
 import sys
-
 from aiohttp import web
-
-from configuration import load_configuration
+from configuration import load_configuration, Configuration
+from llm.claude import ClaudeClient
 from llm.gemini import GeminiClient
 from llm.ollama import OllamaClient
 from platform_adapters.github import GitHubPlatform
@@ -98,28 +97,45 @@ class Service:
         return web.Response(text="OK", status=200)
 
 
-async def create_app() -> web.Application:
-    try:
-        configuration = load_configuration()
-    except Exception as error:
-        logger.fatal(f"Failed to load config: {error}")
-        sys.exit(1)
-
+def create_llm_client(configuration: Configuration):
+    model_name = configuration.llm.model.lower()
+    
     if configuration.llm.api_key:
-        llm_client = GeminiClient(
-            api_key=configuration.llm.api_key,
-            model=configuration.llm.model,
-            temperature=configuration.llm.temperature,
-            timeout=configuration.llm.timeout
-        )
+        if "gemini" in model_name:
+            logger.info(f"Using Gemini client for model: {configuration.llm.model}")
+            return GeminiClient(
+                api_key=configuration.llm.api_key,
+                model=configuration.llm.model,
+                temperature=configuration.llm.temperature,
+                timeout=configuration.llm.timeout
+            )
+        else:
+            logger.info(f"Using Claude client for model: {configuration.llm.model}")
+            return ClaudeClient(
+                api_key=configuration.llm.api_key,
+                model=configuration.llm.model,
+                temperature=configuration.llm.temperature,
+                timeout=configuration.llm.timeout
+            )
     else:
-        llm_client = OllamaClient(
+        logger.info(f"Using Ollama client for model: {configuration.llm.model}")
+        return OllamaClient(
             host="ollama:11434",
             model=configuration.llm.model,
             temperature=configuration.llm.temperature,
             timeout=configuration.llm.timeout
         )
 
+
+async def create_application() -> web.Application:
+    try:
+        configuration = load_configuration()
+    except Exception as error:
+        logger.fatal(f"Failed to load configuration: {error}")
+        sys.exit(1)
+    
+    llm_client = create_llm_client(configuration)
+    
     reviewer_instance = Reviewer(llm_client, configuration)
 
     service = Service(configuration, reviewer_instance)
@@ -147,12 +163,13 @@ async def create_app() -> web.Application:
     application = web.Application()
     application.router.add_post("/webhook", service.handle_webhook)
     application.router.add_get("/health", service.handle_health)
-
+    
+    logger.info(f"Application created with the following configuration: {configuration}")
     return application
 
 
 def main():
-    application = asyncio.run(create_app())
+    application = asyncio.run(create_application())
     
     def signal_handler(sig, frame): # type: ignore
         logger.info("Shutting down server...")

@@ -73,8 +73,8 @@ class Reviewer:
 
             if self.is_file_blocked(file.filename):
                 reviews.append(
-                    f"### 🚫 📄 {file.filename}\n\n"
-                    f"Skipped review. This file contains a blocked keyword in its file path."
+                    f"### ⏭️ 📄 {file.filename}\n\n"
+                    f"Skipped review."
                 )
                 continue
 
@@ -84,8 +84,7 @@ class Reviewer:
             if patch_size > maximum_size:
                 reviews.append(
                     f"### 🐘 📄 {file.filename}\n\n"
-                    f"File changes are too large to review. It contains {patch_size} "
-                    f"characters, exceeding the {maximum_size}-character limit."
+                    f"File changes are too large to review."
                 )
                 continue
 
