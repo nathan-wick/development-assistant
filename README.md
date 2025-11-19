@@ -53,11 +53,13 @@ Using an API-based LLM requires **no additional hardware**, **scales automatical
 
 #### 💰 Estimated Cost Per 10 Developers by Model
 
-| Category              | Gemini 2.5 Pro | GPT 5.1 | Sonnet 4.5 |
-| --------------------- | -------------- | ------- | ---------- |
-| **Upfront Hardware**  | $40            | $40     | $40        |
-| **Monthly Operating** | $5             | $5      | $5         |
-| **Monthly API Fees**  | $4             | $4      | $6         |
+| Category              | Gemini 2.5 Flash | Gemini 2.5 Pro | Sonnet 4.5 |
+| --------------------- | ---------------- | -------------- | ---------- |
+| **Upfront Hardware**  | $40              | $40            | $40        |
+| **Monthly Operating** | $5               | $5             | $5         |
+| **Monthly API Fees**  | $1               | $4             | $6         |
+
+(as of November, 2025)
 
 #### 🤔 Why So Cheap?
 
@@ -85,6 +87,7 @@ Development Assistant can be set up in **5 straightforward steps**, generally ta
 
 - [GitHub](https://github.com/) or [GitLab](https://about.gitlab.com/) account with admin access to repositories
 - Domain name with admin access to DNS records or nameservers
+- If using an API-Based LLM, [Gemini](https://aistudio.google.com/) or [Claude](https://console.anthropic.com/dashboard) account and API key
 - Server with [Git](https://git-scm.com/install/linux) and [Docker Engine](https://docs.docker.com/engine/install/ubuntu/) installed
   - Operating System: Latest [Ubuntu Server](https://ubuntu.com/download/server) recommended for efficiency, compatibility, and long-term support.
   - Hardware: See the [following hardware minimum requirements](#server-hardware-minimum-requirements).
@@ -191,7 +194,7 @@ Update the following values in the settings.env file to match your settings:
 - `DOMAIN_NAME`: Your payload URL's domain name from [step 2](#step-2-get-the-payload-url), for example, `development-assistant.yourdomain.com`
 - `LLM_MODEL`: The LLM model used.
   - If you're self-hosting your LLM, any model in [Ollama's library](https://ollama.com/library) will work.
-  - If you're using an API-based LLM, any model in [Gemini's library](https://ai.google.dev/gemini-api/docs/models) will work.
+  - If you're using an API-based LLM, any model in [Gemini's library](https://ai.google.dev/gemini-api/docs/models) or [Claude's library](https://docs.claude.com/en/docs/about-claude/models/overview) will work.
 - `LLM_TEMPERATURE`: The creativity or variability of responses. Lower values (`0.2`–`0.4`) make responses more focused and deterministic. Higher values (`0.6`–`0.8`) make them more exploratory.
 - `LLM_TIMEOUT`: Maximum number of seconds to wait for a response.
 - `REVIEW_MAX_FILES`: Maximum number of files the LLM will review per request. Helps prevent excessive load on the service when large pull requests are submitted.
